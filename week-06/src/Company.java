@@ -50,4 +50,19 @@ public class Company {
         list[index] = e;
         return true;
     }
+
+    public boolean fire(int num) {
+        int i;
+        for(i = 0; i < SIZE; i++) {
+            if(list[i] != null) {
+                if(list[i].getNum() == num) {
+                    list[i] = null;
+                    return true;
+                }
+                    
+            }
+        }
+
+        return false;
+    }
 }

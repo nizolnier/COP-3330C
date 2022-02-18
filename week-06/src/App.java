@@ -21,6 +21,15 @@ public class App {
        dunderMifflin.add(new Employee("Pam Beesly", 444));
        System.out.println(dunderMifflin);
 
+       System.out.println("After firing .....");
+       if(dunderMifflin.fire(333)) {
+           System.out.println("333 was fired");
+           System.out.println(dunderMifflin);
+       } else {
+            System.out.println("Couldn't find number");
+       }
+       
+       
 
     }
 }
