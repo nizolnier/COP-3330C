@@ -84,11 +84,13 @@ public class Project2 {
         String buffer, prefix, modality, location, description;
         int courseNumber, i=0;
         boolean graduate, lab;
-        ArrayList<Lab> labs = new ArrayList<Lab>();
         String[] token;
         Lecture l;
 
         Scanner s = new Scanner(new File("lec.txt"));
+
+        int labCourse;
+        String labLocation;
 
         // while the file has a next line, i:
         while (s.hasNextLine()) {
@@ -101,8 +103,10 @@ public class Project2 {
 
             
             if (token.length == 2) {
-                // method to add to previous course
-                lecs.get(i-1).addLab(new Lab(Integer.parseInt(token[0]), token[1]));
+                labCourse = Integer.parseInt(token[0].trim());
+                labLocation = token[1];
+                
+                l.addLab(new Lab(labCourse, labLocation));
             } else {
                 buffer = s.nextLine();
                 token = buffer.split(",");
