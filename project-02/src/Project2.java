@@ -6,43 +6,47 @@ Project 2
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class Project2 {
     public static void main(String[] args) throws FileNotFoundException {
-        setup();
+        ArrayList<Person> ucfPeople = new ArrayList<Person>();
+        ArrayList<Lecture> ucfLectures = setup();
 
-        // displayMenu();
+        // testing out constructors and toString
+        Faculty f = new Faculty("John", 5555, "Professor", "CB2", ucfLectures);
+        Student s = new Student("Sam", 2222, true, ucfLectures);
+        TA t = new TA("Anna", 3333, false, ucfLectures, ucfLectures.get(3).labs, f, "phd");
+        System.out.println(f);
+        System.out.println(s);
+        System.out.println(t);
+
+        displayMenu();
         String ans = choiceInput();
 
-        ArrayList<Person> ucfPeople = new ArrayList<Person>();
-
         while (!ans.equals("7")) {
-            switch (ans) {
-                case "1":
-                    System.out.println("add new faculty");
-                    break;
-                case "2":
-                    System.out.println("enroll student");
-                    break;
-                case "3":
-                    System.out.println("print schedule faculty");
-                    break;
-                case "4":
-                    System.out.println("print schedule ta");
-                    break;
-                case "5":
-                    System.out.println("print schedule student");
-                    break;
-                case "6":
-                    System.out.println("delete lecture");
-                    break;
-                // invalid choice reprint menu and get choice
-                default:
-                    displayMenu();
-                    ans = choiceInput();
-                    break;
+            if (ans.equals("1")) {
+                System.out.println("add new faculty");
+                break;
+            } else if (ans.equals("2")) {
+                System.out.println("enroll student");
+                break;
+            } else if (ans.equals("3")) {
+                System.out.println("print schedule faculty");
+                break;
+            } else if (ans.equals("4")) {
+                System.out.println("print schedule ta");
+                break;
+            } else if (ans.equals("5")) {
+                System.out.println("print schedule student");
+                break;
+            } else if (ans.equals("6")) {
+                deleteLecture(ucfLectures);
+                break;
+            } else {
+                displayMenu();
+                ans = choiceInput();
+                break;
             }
         }
 
@@ -79,10 +83,10 @@ public class Project2 {
         System.out.println("Goodbye! ");
     }
 
-    public static void setup() throws FileNotFoundException {
+    public static ArrayList<Lecture> setup() throws FileNotFoundException {
         ArrayList<Lecture> lecs = new ArrayList<Lecture>();
         String buffer, prefix, modality, location, description;
-        int courseNumber, i=0;
+        int courseNumber;
         boolean graduate, lab;
         String[] token;
         Lecture l;
@@ -92,47 +96,62 @@ public class Project2 {
         int labCourse;
         String labLocation;
 
-        // while the file has a next line, i:
         while (s.hasNextLine()) {
-            // set the buffer as the line
-            i++;
             buffer = s.nextLine();
             token = buffer.split(",");
 
-            // order = 69745,COP5698,Programming Languages,Graduate,F2F,CB2-122,YES
-
-            
             if (token.length == 2) {
-                labCourse = Integer.parseInt(token[0].trim());
-                labLocation = token[1];
-                
-                l.addLab(new Lab(labCourse, labLocation));
-            } else {
-                buffer = s.nextLine();
-                token = buffer.split(",");
+                labCourse = Integer.parseInt(token[0]);
+                labLocation = token[1].trim();
 
+                // get the last saved lec and add in the labs
+                lecs.get(lecs.size() - 1).addLab(new Lab(labCourse, labLocation));
+            } else {
+                // order = 69745,COP5698,Programming Languages,Graduate,F2F,CB2-122,YES
                 courseNumber = Integer.parseInt(token[0]);
                 prefix = token[1];
                 description = token[2];
                 graduate = (token[3].toLowerCase().equals("graduate"));
                 modality = token[4];
+                // if the modality is online, it ends on token[4]
                 if (modality.toLowerCase().equals("f2f")) {
                     location = token[5];
                     lab = (token[6].toLowerCase().equals("yes"));
-
                 } else {
                     location = "";
                     lab = false;
                 }
 
                 l = new Lecture(prefix, courseNumber, modality, location, description, graduate, lab);
-                System.out.println(l + "\n--------------------");
                 lecs.add(l);
-                System.out.println(Arrays.toString(token));
             }
 
         }
-        // return lecs;
+
+        return lecs;
+    }
+
+    public static void deleteLecture(ArrayList<Lecture> lecs) {
+        int crn = intInput("Enter crn of the lecture to delete:");
+        boolean inLecs = false;
+        Lecture lec = new Lecture();
+
+        for (Lecture l : lecs) {
+            if (l.courseNumber == crn) {
+                inLecs = true;
+                lec = l;
+                break;
+            }
+        }
+
+        if (inLecs) {
+            int index = lecs.indexOf(lec);
+            lecs.remove(index);
+            System.out.println("Ok, " + crn + " has been deleted.");
+
+        } else {
+            System.out.println("Sorry, lecture not found");
+        }
     }
 }
 
@@ -146,80 +165,11 @@ class Lecture {
     public boolean lab;
     public ArrayList<Lab> labs = new ArrayList<Lab>();
 
-    public String getPrefix() {
-        return this.prefix;
-    }
-
-    public void setPrefix(String prefix) {
-        this.prefix = prefix;
-    }
-
-    public int getCourseNumber() {
-        return this.courseNumber;
-    }
-
-    public void setCourseNumber(int courseNumber) {
-        this.courseNumber = courseNumber;
-    }
-
-    public String getModality() {
-        return this.modality;
-    }
-
-    public void setModality(String modality) {
-        this.modality = modality;
-    }
-
-    public String getLocation() {
-        return this.location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
-    public String getDescription() {
-        return this.description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public boolean isGraduate() {
-        return this.graduate;
-    }
-
-    public boolean getGraduate() {
-        return this.graduate;
-    }
-
-    public void setGraduate(boolean graduate) {
-        this.graduate = graduate;
-    }
-
-    public boolean isLab() {
-        return this.lab;
-    }
-
-    public boolean getLab() {
-        return this.lab;
-    }
-
-    public void setLab(boolean lab) {
-        this.lab = lab;
-    }
-
-    public ArrayList<Lab> getLabs() {
-        return this.labs;
-    }
-
-    public void setLabs(ArrayList<Lab> labs) {
-        this.labs = labs;
-    }
-
     public void addLab(Lab lab) {
         this.labs.add(lab);
+    }
+
+    public Lecture() {
     }
 
     public Lecture(String prefix, int courseNumber, String modality, String location, String description,
@@ -234,16 +184,7 @@ class Lecture {
     }
 
     public String toString() {
-        return "{" +
-                " prefix='" + getPrefix() + "'" +
-                ", courseNumber='" + getCourseNumber() + "'" +
-                ", modality='" + getModality() + "'" +
-                ", location='" + getLocation() + "'" +
-                ", description='" + getDescription() + "'" +
-                ", graduate='" + isGraduate() + "'" +
-                ", lab='" + isLab() + "'" +
-                ", labs='" + getLabs() + "'" +
-                "}";
+        return "{ Course Number: " + courseNumber + " }";
     }
 
 }
@@ -257,27 +198,8 @@ class Lab {
         this.location = location;
     }
 
-    public int getCourseNumber() {
-        return this.courseNumber;
-    }
-
-    public void setCourseNumber(int courseNumber) {
-        this.courseNumber = courseNumber;
-    }
-
-    public String getLocation() {
-        return this.location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
     public String toString() {
-        return "{" +
-                " courseNumber='" + getCourseNumber() + "'" +
-                ", location='" + getLocation() + "'" +
-                "}";
+        return "{ Course Number: " + courseNumber + " }";
     }
 
 }
@@ -285,21 +207,66 @@ class Lab {
 abstract class Person {
     public String name;
     public int id;
+
+    public Person(String name, int id) {
+        this.name = name;
+        this.id = id;
+    }
+
+    public String toString() {
+        return "----------------------------\nName: " + name + "\nUCF ID: " + id;
+    }
 }
 
 class Faculty extends Person {
     public String rank;
     public String officeLocation;
     public ArrayList<Lecture> lecturesTaught;
+
+    public Faculty(String name, int id, String rank, String officeLocation, ArrayList<Lecture> lecturesTaught) {
+        super(name, id);
+        this.rank = rank;
+        this.officeLocation = officeLocation;
+        this.lecturesTaught = lecturesTaught;
+    }
+
+    public String toString() {
+        return super.toString() + "\nLectures Taught: " + lecturesTaught + "\n----------------------------";
+    }
+
 }
 
 class Student extends Person {
     public boolean graduate;
     public ArrayList<Lecture> lecturesTaken;
+
+    public Student(String name, int id, boolean graduate, ArrayList<Lecture> lecturesTaken) {
+        super(name, id);
+        this.graduate = graduate;
+        this.lecturesTaken = lecturesTaken;
+    }
+
+    public String toString() {
+        return super.toString() + "\nLectures Taken: " + lecturesTaken + "\n----------------------------";
+    }
+
 }
 
 class TA extends Student {
     public ArrayList<Lab> labsSupervised;
     public Faculty advisor;
     public String expectedDegree;
+
+    public TA(String name, int id, boolean graduate, ArrayList<Lecture> lecturesTaken, ArrayList<Lab> labsSupervised,
+            Faculty advisor, String expectedDegree) {
+        super(name, id, graduate, lecturesTaken);
+        this.labsSupervised = labsSupervised;
+        this.advisor = advisor;
+        this.expectedDegree = expectedDegree;
+    }
+
+    public String toString() {
+        return "----------------------------\nName: " + super.name + "\nUCF ID: " + super.id + "\nLabs Supervised "
+                + labsSupervised + "\n----------------------------";
+    }
 }
